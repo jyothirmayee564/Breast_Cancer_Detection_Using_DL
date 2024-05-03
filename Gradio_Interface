@@ -1,0 +1,27 @@
+import gradio as gr
+from tensorflow.keras.models import load_model
+import numpy as np
+from PIL import Image
+
+# Load the pre-trained model
+model = load_model("/content/drive/MyDrive/Breast_Cancer/Densenet.h5")  # Replace with the actual path to your model file
+
+
+def predict_image(img):
+    # Convert Gradio Image datatype to PIL Image
+    img = Image.fromarray(img.astype('uint8'), 'RGB')
+    img = img.resize((224, 224))
+    img = np.asarray(img)
+    img = np.expand_dims(img, axis=0)
+    output = model.predict(img)
+    if output[0][0] > output[0][1]:
+        pred = "Benign"
+    else:
+        pred = "Malignant"
+    return pred
+
+# Create a Gradio interface
+interface = gr.Interface(fn=predict_image, inputs="image", outputs="label", title="VGG Image Classifier")
+
+# Launch the interface
+interface.launch()
